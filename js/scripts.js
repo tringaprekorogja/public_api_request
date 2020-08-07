@@ -1,9 +1,11 @@
+/* Creates global variables */
+
 const randomUserGeneratorUrl = 'https://randomuser.me/api?results=12'
 const cards = document.querySelectorAll('.card')
 const searchContainer = document.querySelector('.search-container')
 
 
-
+/* Creates a reusable data fetching function */
 function fetchData(url) {
     return fetch(url)
         .then(checkStatus)
@@ -11,6 +13,7 @@ function fetchData(url) {
         .catch(error => console.log('Looks like there was a problem', error));
 }
 
+/* Creates a function to check if the promise resolved with the response objects ok property set to true*/
 function checkStatus(response) {
     if (response.ok) {
         return Promise.resolve(response);
@@ -18,19 +21,24 @@ function checkStatus(response) {
     return Promise.reject(new Error(response.statusText()));
 }
 
+/*Calls the fetching function passing it the url of the API to send a single request */
 fetchData(randomUserGeneratorUrl)
     .then(data => {
+        //Calls the function to get and display 12 users along with some baic info
         displayRandomUsers(data.results)
-        addSearchComponent()
+            //Calls the function to add a search bar that filters the directory by name
+            .then(addSearchComponent())
     })
 
 
+/* Creates a function that uses the response data to display 12 users */
 function displayRandomUsers(data) {
 
     data.map((user, index) => {
         const newCardDiv = document.createElement('div')
         newCardDiv.setAttribute('class', 'card')
 
+        const gallery = document.querySelector('#gallery')
         gallery.appendChild(newCardDiv)
 
         newCardDiv.innerHTML = `<div class="card-img-container">
@@ -41,8 +49,9 @@ function displayRandomUsers(data) {
         <p class="card-text">${user.email}</p>
         <p class="card-text cap">${user.location.city}, ${user.location.state}</p>
         </div>`;
-
+        //Adds a click event to listen for in each new user card div
         newCardDiv.addEventListener('click', () => {
+            // Calls the function to create a modal window with more detailed info about the user
             createModalWindow(data, index)
 
         })
@@ -50,20 +59,19 @@ function displayRandomUsers(data) {
 
 
     })
-
+    return data
 }
 
 
-
+/*Creates a function to create a modal window with more detailed info about the user*/
 function createModalWindow(data, userIndex) {
-
     const user = data[userIndex]
+    //Formates the date of the user birth
     const date = new Date(user.dob.date)
     userBirthDate = date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
 
 
     const userCellNum = formatPhoneNumber(user.cell)
-
     const script = document.querySelector('script')
 
     const modalContainer = document.createElement('div')
@@ -86,7 +94,7 @@ function createModalWindow(data, userIndex) {
 
 
     const button = document.querySelector('#modal-close-btn')
-
+    //Adds an event listener on the modal window button to close it
     button.addEventListener('click', () => {
         modalContainer.remove()
 
@@ -96,7 +104,9 @@ function createModalWindow(data, userIndex) {
 }
 
 
+/*Creates a function to format the users phone number.
 
+code adapted from https://learnersbucket.com/examples/javascript/how-to-format-phone-number-in-javascript/*/
 function formatPhoneNumber(phoneNumberString) {
     var cleaned = ('' + phoneNumberString).replace(/\D/g, '')
     var match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
@@ -108,7 +118,7 @@ function formatPhoneNumber(phoneNumberString) {
 }
 
 
-
+// Creates a function to add a search component
 function addSearchComponent() {
     searchForm = document.createElement('form')
     searchForm.setAttribute('action', '#')
@@ -124,7 +134,7 @@ function addSearchComponent() {
     const searchField = document.getElementById('search-input');
     const button = document.getElementById('search-submit');
 
-    /* creates search bar functionality(click and keyup) */
+    /* creates search component functionality(click) */
     function searchEmployees(searchInput, names) {
         const searchContent = searchInput.value;
         const input = searchContent.toString().toLowerCase();
@@ -143,7 +153,7 @@ function addSearchComponent() {
     }
 
 
-
+    //Adds an event listener to the submit button
     button.addEventListener('click', (e) => {
         e.preventDefault()
         searchEmployees(searchField, cards)
