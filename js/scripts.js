@@ -1,6 +1,7 @@
 const randomUserGeneratorUrl = 'https://randomuser.me/api?results=12'
-const card = document.querySelector('.card')
 const cards = document.querySelectorAll('.card')
+const searchContainer = document.querySelector('.search-container')
+
 
 
 function fetchData(url) {
@@ -20,9 +21,7 @@ function checkStatus(response) {
 fetchData(randomUserGeneratorUrl)
     .then(data => {
         displayRandomUsers(data.results)
-
-
-
+        addSearchComponent()
     })
 
 
@@ -45,6 +44,7 @@ function displayRandomUsers(data) {
 
         newCardDiv.addEventListener('click', () => {
             createModalWindow(data, index)
+
         })
 
 
@@ -58,17 +58,12 @@ function displayRandomUsers(data) {
 function createModalWindow(data, userIndex) {
 
     const user = data[userIndex]
-
     const date = new Date(user.dob.date)
     userBirthDate = date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
 
-    const phonenumLength = user.cell
-    console.log(phonenumLength.length)
+
     const userCellNum = formatPhoneNumber(user.cell)
 
-
-
-    const gallery = document.querySelector('#gallery')
     const script = document.querySelector('script')
 
     const modalContainer = document.createElement('div')
@@ -91,11 +86,9 @@ function createModalWindow(data, userIndex) {
 
 
     const button = document.querySelector('#modal-close-btn')
-    console.log(button)
 
     button.addEventListener('click', () => {
         modalContainer.remove()
-
 
     })
 
@@ -111,14 +104,54 @@ function formatPhoneNumber(phoneNumberString) {
         return '(' + match[1] + ') ' + match[2] + '-' + match[3]
     }
     return phoneNumberString
+
 }
 
-// const button = document.querySelector('#modal-close-btn')
-
-// button.addEventListener('click', ()=>{
 
 
-// })
+function addSearchComponent() {
+    searchForm = document.createElement('form')
+    searchForm.setAttribute('action', '#')
+    searchForm.setAttribute('method', 'get')
+
+    searchContainer.appendChild(searchForm)
+
+    searchForm.innerHTML = `<input type="search" id="search-input" class="search-input" placeholder="Search...">
+                             <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">`;
+
+
+    const cards = document.querySelectorAll('.card');
+    const searchField = document.getElementById('search-input');
+    const button = document.getElementById('search-submit');
+
+    /* creates search bar functionality(click and keyup) */
+    function searchEmployees(searchInput, names) {
+        const searchContent = searchInput.value;
+        const input = searchContent.toString().toLowerCase();
+
+        for (let i = 0; i < names.length; i += 1) {
+            const searchName = names[i].querySelector('h3');
+            const stringName = searchName.textContent.toString().toLowerCase()
+            const match = stringName.indexOf(input);
+
+            if (match !== -1) {
+                names[i].style.display = '';
+            } else {
+                names[i].style.display = 'none';
+            }
+        }
+    }
 
 
 
+    button.addEventListener('click', (e) => {
+        e.preventDefault()
+        searchEmployees(searchField, cards)
+
+    })
+
+
+
+
+
+}
